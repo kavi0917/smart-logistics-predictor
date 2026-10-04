@@ -1,0 +1,8 @@
+{
+  "mae": 24.81,
+  "rmse": 40.14,
+  "r2": 0.9777,
+  "train_rows": 2000,
+  "test_rows": 500,
+  "algorithm": "RandomForestRegressor"
+}

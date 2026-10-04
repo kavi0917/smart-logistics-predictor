@@ -1,0 +1,42 @@
+name: CD (publish images)
+
+# Runs when you push a version tag (e.g. v1.0.0) or start it manually.
+# Publishes Docker images to GitHub Container Registry (free). No paid cloud service is needed.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Lowercase repository name
+        run: echo "REPO=${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+      - name: Build and push backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: backend/Dockerfile
+          push: true
+          tags: ghcr.io/${{ env.REPO }}-backend:latest,ghcr.io/${{ env.REPO }}-backend:${{ github.sha }}
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: true
+          build-args: VITE_API_URL=${{ vars.PRODUCTION_API_URL || 'http://localhost:8000' }}
+          tags: ghcr.io/${{ env.REPO }}-frontend:latest,ghcr.io/${{ env.REPO }}-frontend:${{ github.sha }}
+  # Deployment step: on a server with Docker, run `docker compose pull && docker compose up -d`
+  # (see docs/CICD.md). It is not automated here because it needs a server you own.
