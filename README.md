@@ -110,3 +110,4 @@ Add your own after running the app (suggested names):
 ## Future improvements
 Real traffic/weather APIs, model retraining on real data, probability calibration, role-based access, e-mail/WhatsApp alerts,
 Kubernetes deployment, Prometheus/Grafana monitoring.
+"# smart-logistics-predictor" 
